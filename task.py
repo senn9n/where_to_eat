@@ -16,9 +16,9 @@ if __name__ == "__main__":
     print("Press Ctrl + F2 to exit")
     try:
         while True:
-            time.sleep(3600)
+            time.sleep(86400)
             print(f"{datetime.now()}")
-            print('wait...')
+            #print('wait...')
     except (KeyboardInterrupt, SystemExit):
         scheduler.shutdown()
         print("Exit The Job !")
