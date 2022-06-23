@@ -12,7 +12,7 @@ def read_food(filename):
 
 def select_where(dc):
     dc = list(dc)
-    where = random.sample(dc, 1)
+    where = random.choice(dc)
     return where
 
 
@@ -44,7 +44,7 @@ def rewrite_times(dc, filename):
 def str_clean(dc):
     dc = {k: v for k, v in dc.items() if not v >= 6}
     sd = sorted(dc.items(), key=lambda x: x[1])
-    s = str(sd).translate(str.maketrans('()', '（）', "[]'")).replace('）,', '）')
+    s = str(sd).translate(str.maketrans('()', '（）', "[]'")).replace('）,', '）\n                   ')
     return s
 
 
@@ -63,14 +63,14 @@ def send_dd(info1, info2):
 
 
 if __name__ == "__main__":
-    foods = read_food('food.yaml')
+    foods = read_food('food.YAML')
     foods_filter = filter_foods(foods)
     foods_filter_bt = filter_foods_before_today(foods)
     value_plus_one(foods_filter_bt, foods)
     where_today = select_where(foods_filter)
-    foods[where_today[0]] += 1
+    foods[where_today] += 1
     rewrite_times(foods, 'food.YAML')
-    s1 = where_today[0]
+    s1 = where_today
     s2 = str_clean(foods_filter_bt)
     send_dd(s1, s2)
     print("今天去恰：{} \n最近恰了：{}".format(s1, s2))
