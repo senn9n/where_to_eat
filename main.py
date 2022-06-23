@@ -1,6 +1,5 @@
 import random
 import yaml
-from datetime import datetime
 import requests
 import json
 
@@ -32,29 +31,25 @@ def value_plus_one(dc1, dc2):
         dc2[f] += 1
 
 
-def rewrite_times(dc):
-    """
-    s = sum(dc.values())
-    dayOfWeek = datetime.now().weekday()
-    if dayOfWeek == 0 or s >= 7:
-        dc.update({k: 0 for k in dc})
-    """
+def rewrite_times(dc, filename):
     n = 6  # 保留n-1天记录
-    d = {k: v for k, v in dc.items() if v == n}
+    d = {k: v for k, v in dc.items() if v >= n}
     if d:
-        dc[list(d)[0]] = 0
-    with open('food.YAML', 'w', encoding='utf8') as f:
+        for i in range(len(d)):
+            dc[list(d)[i]] = 0
+    with open(filename, 'w', encoding='utf8') as f:
         yaml.dump(dc, f, allow_unicode=True)
 
 
 def str_clean(dc):
+    dc = {k: v for k, v in dc.items() if not v >= 6}
     sd = sorted(dc.items(), key=lambda x: x[1])
-    s = str(sd).replace('[', '').replace(']', '').replace(r"'", '')
+    s = str(sd).translate(str.maketrans('()', '（）', "[]'")).replace('）,', '）')
     return s
 
 
 def send_dd(info1, info2):
-    url = ' '  # 此处为钉钉机器人推送api
+    url = ' '
     headers = {"Content-Type": "application/json ;charset=utf-8 "}
     data = {"msgtype": "text",
             "text": {"content": "今天去恰：{} \n最近恰了：{}".format(info1, info2)},
@@ -69,14 +64,13 @@ def send_dd(info1, info2):
 
 if __name__ == "__main__":
     foods = read_food('food.yaml')
-    rewrite_times(foods)
     foods_filter = filter_foods(foods)
     foods_filter_bt = filter_foods_before_today(foods)
     value_plus_one(foods_filter_bt, foods)
     where_today = select_where(foods_filter)
     foods[where_today[0]] += 1
-    rewrite_times(foods)
-    send_dd(where_today[0], list(foods_filter_bt))
+    rewrite_times(foods, 'food.YAML')
     s1 = where_today[0]
     s2 = str_clean(foods_filter_bt)
+    send_dd(s1, s2)
     print("今天去恰：{} \n最近恰了：{}".format(s1, s2))
